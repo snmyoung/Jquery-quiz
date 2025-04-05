@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VIN Warrior Princess Quiz</title>
+  <link rel="stylesheet" href="style/quiz-style.css" />
+  <link rel="icon" href="asset/favicon.ico" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+      background-color: #fdf0f5;
+      color: #333;
+      padding: 20px;
+      position: relative;
+    }
+    #quiz-wrapper {
+      max-width: 750px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 2;
+    }
+    #watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      opacity: 0.05;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+    }
+    h1 {
+      text-align: center;
+      color: #8e44ad;
+      margin-bottom: 10px;
+    }
+    .question {
+      font-size: 20px;
+      margin: 20px 0 10px;
+    }
+    .options {
+      list-style-type: none;
+      padding: 0;
+    }
+    .options li {
+      background-color: #f0d0e0;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .options li:hover {
+      background-color: #dcb0d8;
+    }
+    #next-button {
+      background-color: #8e44ad;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+    #encouragement {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #8e44ad;
+      display: none;
+    }
+    .score {
+      font-size: 22px;
+      color: green;
+      margin-top: 20px;
+      display: none;
+    }
+    #ribbon-container img {
+      display: block;
+      margin: 20px auto;
+      width: 150px;
+    }
+    #timer {
+      text-align: right;
+      font-size: 16px;
+      color: #a52a2a;
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-wrapper">
+    <img src="images/Butterfly.png" id="watermark" alt="Watermark" />
+    <h1>VIN Warrior Princess Quiz</h1>
+    <div id="timer">Time Left: 10:00</div>
+    <div id="quiz-container">
+      <div class="question"></div>
+      <ul class="options"></ul>
+      <div id="encouragement"></div>
+      <button id="next-button">Next Question</button>
+    </div>
+    <div class="score"></div>
+    <div id="ribbon-container"></div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      const questions = [
+        {
+          question: "What does HTML stand for?",
+          options: ["Hyper Text Makeup Language", "Hyperlinks and Text Markup Language", "Hyper Text Markup Language", "Home Tool Markup Language"],
+          answer: "Hyper Text Markup Language"
+        },
+        {
+          question: "Which tag is used to create a hyperlink in HTML?",
+          options: ["&lt;link&gt", "&lt;a&gt", "&lt;href&gt", "&lt;hlink&gt"],
+          answer: "<a>"
+        },
+        {
+          question: "Which jQuery syntax is used to hide an element?",
+          options: ["hide().element", "$(element).hide()", "$hide(element)", "$.hide(element)"],
+          answer: "$(element).hide()"
+        },
+        {
+          question: "What does CSS stand for?",
+          options: ["Colorful Style Sheets", "Cascading Style Sheets", "Creative Style Syntax", "Computer Style Sheets"],
+          answer: "Cascading Style Sheets"
+        },
+        {
+          question: "Which Bootstrap class is used to create a button?",
+          options: [".btn", ".button", ".bootstrap-btn", ".bttn"],
+          answer: ".btn"
+        },
+        {
+          question: "How do you write a comment in JavaScript?",
+          options: ["<!-- comment -->", "// comment", "/* comment */", "** comment **"],
+          answer: "// comment"
+        },
+        {
+          question: "Which event triggers when an element is clicked in jQuery?",
+          options: ["onClick()", "$(click)", "$(element).click()", "element.click"],
+          answer: "$(element).click()"
+        },
+        {
+          question: "Which attribute is used for accessibility labels?",
+          options: ["alt", "role", "aria-label", "label"],
+          answer: "aria-label"
+        },
+        {
+          question: "Which HTML tag defines the structure of a page?",
+          options: ["&lt;section&gt", "&lt;main&gt", "&lt;div&gt", "All of the above"],
+          answer: "All of the above"
+        },
+        {
+          question: "Who is the Warrior Princess this quiz was inspired by?",
+          options: ["Wonder Woman", "K.belle", "Cinderella", "Moana"],
+          answer: "K.belle"
+        }
+      ];
+
+      let currentQuestion = 0;
+      let score = 0;
+      let timer = 600;
+
+      function displayQuestion() {
+        if (currentQuestion < questions.length) {
+          const q = questions[currentQuestion];
+          $(".question").text(q.question);
+          $(".options").empty();
+          q.options.forEach(opt => {
+            $(".options").append("<li>" + opt + "</li>");
+          });
+
+          // Encouragement check
+          if (currentQuestion === 2) {
+            $("#encouragement").html('<i class="fas fa-heart"></i> You got this, Warrior!').fadeIn();
+          } else if (currentQuestion === 5) {
+            $("#encouragement").html('<i class="fas fa-fire"></i> Keep slaying—giants don’t stand a chance!').fadeIn();
+          } else {
+            $("#encouragement").hide();
+          }
+        } else {
+          $(".question, .options, #next-button, #encouragement").hide();
+          $(".score").text("Final Score: " + score + "/" + questions.length).show();
+
+          let ribbonImg = "";
+          if (score === 10) {
+            ribbonImg = "images/gold-ribbon.png";
+          } else if (score >= 7 && score <10) {
+            ribbonImg = "images/silver-ribbon.png";
+          } else {
+            ribbonImg = "images/bronze-ribbon.png";
+          }
+          $("#ribbon-container").html('<img src="' + ribbonImg + '" alt="Final Ribbon" />');
+        }
+      }
+
+      $(document).on("click", ".options li", function () {
+        const selected = $(this).text();
+        if (selected === questions[currentQuestion].answer) {
+          score++;
+        }
+        currentQuestion++;
+        displayQuestion();
+      });
+
+      $("#next-button").click(function () {
+        displayQuestion();
+      });
+
+      function startTimer() {
+        const interval = setInterval(() => {
+          if (timer <= 0 || currentQuestion >= questions.length) {
+            clearInterval(interval);
+            $("#timer").text("Time's up!");
+            $(".question, .options, #next-button").hide();
+            $(".score").text("Time's up! Final Score: " + score + "/" + questions.length).show();
+            // show bronze ribbon when time is up
+            $("#ribbon-container").hide().html(`
+           <img src="${ribbonImg}" alt="Final Ribbon" style="width: 150px; display: block; margin: 0 auto;" />
+           <div id="final-message" style="text-align: center; margin-top: 20px;">
+           <h2 style="color:#8e44ad;">You Did It, Warrior!</h2>
+           <p style="font-size: 18px; color: #555;">You showed up, you slayed, and you finished strong.</p>
+           <button onclick="location.reload()" style="margin-top: 20px; background-color: #8e44ad; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Try Again</button>
+           </div>
+           `).fadeIn(1000);
+
+
+
+
+
+
+
+          } else {
+            timer--;
+            let minutes = Math.floor(timer / 60);
+            let seconds = timer % 60;
+            if (seconds < 10) seconds = "0" + seconds;
+            $("#timer").text(`Time Left: ${minutes}:${seconds}`);
+          }
+        }, 1000);
+      }
+
+      displayQuestion();
+      startTimer();
+    });
+  </script>
+</body>
+</html>
